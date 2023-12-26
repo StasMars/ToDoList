@@ -11,6 +11,15 @@ async def all_todos():
     return await GetTodo.from_queryset(data)
 
 
+@todo_router.get('/{todo_id}')
+async def one_todo(todo_id: int):
+    exists = Todo.filter(id=todo_id).exists()
+    if not exists:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail='Todo not found')
+    return await GetTodo.from_queryset_single(Todo.get(id=todo_id))
+
+
 @todo_router.post('/')
 async def post_todo(body: PostTodo):
     row = await Todo.create(**body.model_dump(exclude_unset=True))
